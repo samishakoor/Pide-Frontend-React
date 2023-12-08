@@ -1,8 +1,16 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const SECPForm = () => {
   const [formErrors, setFormErrors] = useState({});
-
+  const [formData, setFormData] = useState({
+    officeAddress: "",
+    telephoneNumber: "",
+    director1: "",
+    director2: "",
+    director3: "",
+    images: [],
+  });
   const validateForm = () => {
     const errors = {};
     let isValid = true;
@@ -30,8 +38,12 @@ const SECPForm = () => {
       if (!input.value.trim()) {
         errors[input.name] = "Please enter a value.";
         isValid = false;
-      } else if (input.name === 'telephoneNumber' && !/^\d+$/.test(input.value.trim())) {
-        errors[input.name] = "Please enter a valid telephone number (numbers only).";
+      } else if (
+        input.name === "telephoneNumber" &&
+        !/^\d+$/.test(input.value.trim())
+      ) {
+        errors[input.name] =
+          "Please enter a valid telephone number (numbers only).";
         isValid = false;
       }
     });
@@ -39,175 +51,210 @@ const SECPForm = () => {
     setFormErrors(errors);
     return isValid;
   };
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    setFormData({ ...formData, images: [...formData.images, ...files] });
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const isFormValid = validateForm();
     if (!isFormValid) {
       return;
     }
+    const data = new FormData();
 
-    const formData = new FormData(event.target);
+    data.append("officeAddress", formData.officeAddress);
+    data.append("telephoneNumber", formData.telephoneNumber);
+    data.append("director1", formData.director1);
+    data.append("director2", formData.director2);
+    data.append("director3", formData.director3);
 
-    const base64Promises = [];
-    for (const file of formData.values()) {
-      if (file instanceof File) {
-        const reader = new FileReader();
-        base64Promises.push(
-          new Promise((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-          })
-        );
-        reader.readAsDataURL(file);
-      }
+    formData.images.forEach((image, index) => {
+      data.append(`image${index + 1}`, image);
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/pideReg/secp/",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-
-    const base64Results = await Promise.all(base64Promises);
-
-    const fileInputs = Array.from(formData.entries()).reduce((acc, [key, value], index) => {
-      if (value instanceof File) {
-        acc[key] = {
-          name: value.name,
-          type: value.type,
-          data: base64Results[index],
-        };
-      } else {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    const jsonData = JSON.stringify(fileInputs, null, 2);
-
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "SECP_Form.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
-    <form className="max-w-4xl mx-auto mt-20 p-8 border rounded shadow-md bg-white" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-semibold mb-6">SECP Registration Form</h2>
+    <form
+      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="mb-6 text-2xl font-semibold">SECP Registration Form</h2>
 
       <div className="mb-4">
-        <label htmlFor="cnic" className="block text-gray-700 font-medium mb-2">
+        <label htmlFor="cnic" className="block mb-2 font-medium text-gray-700">
           CNIC (Upload Image)
         </label>
-        <input type="file" id="cnic" name="cnic" className="border rounded px-4 py-2 w-full" />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+        <input
+          type="file"
+          id="cnic"
+          name="image1"
+          accept="image/*"
+          className="w-full px-4 py-2 border rounded"
+          onChange={handleImageChange}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label htmlFor="memorandum" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="memorandum"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Memorandum (Upload Image)
           </label>
           <input
             type="file"
             id="memorandum"
-            name="memorandum"
-            className="border rounded px-4 py-2 w-full"
+            name="image2"
+            accept="image/*"
+            className="w-full px-4 py-2 border rounded"
+            onChange={handleImageChange}
           />
         </div>
         <div>
-          <label htmlFor="complianceForm" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="complianceForm"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Compliance Form (Upload Image)
           </label>
           <input
             type="file"
             id="complianceForm"
-            name="complianceForm"
-            className="border rounded px-4 py-2 w-full"
+            name="image3"
+            accept="image/*"
+            className="w-full px-4 py-2 border rounded"
+            onChange={handleImageChange}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label htmlFor="officeAddress" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="officeAddress"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Office Address
           </label>
           <input
             type="text"
             id="officeAddress"
             name="officeAddress"
-            className="border rounded px-4 py-2 w-full"
+            className="w-full px-4 py-2 border rounded"
             placeholder="Enter Office Address"
+            onChange={handleInputChange}
           />
         </div>
         <div>
-          <label htmlFor="telephoneNumber" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="telephoneNumber"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Telephone Number
           </label>
           <input
             type="text"
             id="telephoneNumber"
             name="telephoneNumber"
-            className="border rounded px-4 py-2 w-full"
+            className="w-full px-4 py-2 border rounded"
             placeholder="Enter Telephone Number"
+            onChange={handleInputChange}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div>
-          <label htmlFor="director1" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="director1"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Name of Director 1
           </label>
           <input
             type="text"
             id="director1"
             name="director1"
-            className="border rounded px-4 py-2 w-full"
+            className="w-full px-4 py-2 border rounded"
             placeholder="Enter Director 1 Name"
+            onChange={handleInputChange}
           />
         </div>
         <div>
-          <label htmlFor="director2" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="director2"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Name of Director 2
           </label>
           <input
             type="text"
             id="director2"
             name="director2"
-            className="border rounded px-4 py-2 w-full"
+            className="w-full px-4 py-2 border rounded"
             placeholder="Enter Director 2 Name"
+            onChange={handleInputChange}
           />
         </div>
         <div>
-          <label htmlFor="director3" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="director3"
+            className="block mb-2 font-medium text-gray-700"
+          >
             Name of Director 3
           </label>
           <input
             type="text"
             id="director3"
             name="director3"
-            className="border rounded px-4 py-2 w-full"
+            className="w-full px-4 py-2 border rounded"
             placeholder="Enter Director 3 Name"
+            onChange={handleInputChange}
           />
         </div>
       </div>
 
       <div className="mb-4">
-        <label htmlFor="feeChallan" className="block text-gray-700 font-medium mb-2">
+        <label
+          htmlFor="feeChallan"
+          className="block mb-2 font-medium text-gray-700"
+        >
           Fee Challan (Upload Image)
         </label>
         <input
           type="file"
           id="feeChallan"
-          name="feeChallan"
-          className="border rounded px-4 py-2 w-full"
+          name="image4"
+          accept="image/*"
+          className="w-full px-4 py-2 border rounded"
+          onChange={handleImageChange}
         />
       </div>
 
-
-
       {Object.keys(formErrors).length > 0 && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
           {Object.values(formErrors).map((error, index) => (
             <p key={index}>{error}</p>
           ))}
@@ -217,7 +264,7 @@ const SECPForm = () => {
       <div className="flex justify-center">
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded focus:outline-none"
+          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
         >
           Submit
         </button>

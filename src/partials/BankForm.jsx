@@ -1,8 +1,14 @@
-
 import React, { useState } from "react";
+import axios from "axios";
 
 const BankForm = () => {
   const [formErrors, setFormErrors] = useState({});
+  const [formData, setFormData] = useState({
+    director1: "",
+    director2: "",
+    director3: "",
+    images: [],
+  });
 
   const validateForm = () => {
     const errors = {};
@@ -26,7 +32,6 @@ const BankForm = () => {
       }
     });
 
-    // Check text input fields for any empty values
     const textInputFields = document.querySelectorAll("input[type='text']");
     textInputFields.forEach((input) => {
       if (!input.value.trim()) {
@@ -38,142 +43,250 @@ const BankForm = () => {
     setFormErrors(errors);
     return isValid;
   };
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    setFormData({ ...formData, images: [...formData.images, ...files] });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const isFormValid = validateForm();
     if (!isFormValid) {
       return;
     }
+    const data = new FormData();
 
-    const formData = new FormData(event.target);
+    data.append("director1", formData.director1);
+    data.append("director2", formData.director2);
+    data.append("director3", formData.director3);
 
-    const base64Promises = [];
-    for (const file of formData.values()) {
-      if (file instanceof File) {
-        const reader = new FileReader();
-        base64Promises.push(
-          new Promise((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-          })
-        );
-        reader.readAsDataURL(file);
-      }
+    formData.images.forEach((image, index) => {
+      data.append(`image${index + 1}`, image);
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/pideReg/bank/",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-
-    const base64Results = await Promise.all(base64Promises);
-
-    const fileInputs = Array.from(formData.entries()).reduce((acc, [key, value], index) => {
-      if (value instanceof File) {
-        acc[key] = {
-          name: value.name,
-          type: value.type,
-          data: base64Results[index],
-        };
-      } else {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    const jsonData = JSON.stringify(fileInputs, null, 2);
-
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "SECP_Form.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
-    <form className="max-w-4xl mx-auto mt-20 p-8 border rounded shadow-md bg-white" onSubmit={handleSubmit}>
-      <h2 className="text-lg font-semibold mb-6 text-center">Bank Registration Form</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="mb-6 text-lg font-semibold text-center">
+        Bank Registration Form
+      </h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="mb-4">
-          <label htmlFor="cnicCopy" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="cnicCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
             CNIC Copy(Upload Image)
           </label>
-          <input type="file" id="cnicCopy" name="cnicCopy" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="file"
+            id="cnicCopy"
+            name="image1"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
         </div>
         <div className="mb-4">
-          <label htmlFor="nationalTaxProof" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="nationalTaxProof"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Proof of National Tax Number (Upload Image)
           </label>
-          <input type="file" id="nationalTaxProof" name="nationalTaxProof" className="border rounded px-3 py-2 w-full" />
-            
-            
-              </div>
-              
-         <div className="mb-4">
-        <label htmlFor="letterHeadSample" className="block text-gray-700 font-medium mb-1">
-          Letter Head Sample (Upload Image)
-        </label>
-        <input type="file" id="letterHeadSample" name="letterHeadSample" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="rubberStampSample" className="block text-gray-700 font-medium mb-1">
-          Rubber Stamp Sample (Upload Image)
-        </label>
-        <input type="file" id="rubberStampSample" name="rubberStampSample" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="partnershipDeedCopy" className="block text-gray-700 font-medium mb-1">
-          Copy of the Partnership Deed (Upload Image)
-        </label>
-        <input type="file" id="partnershipDeedCopy" name="partnershipDeedCopy" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="secpRegistrationCopy" className="block text-gray-700 font-medium mb-1">
-          SECP Registration/Certificate of Registration Copy (Upload Image)
-        </label>
-        <input type="file" id="secpRegistrationCopy" name="secpRegistrationCopy" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="businessAddressProof" className="block text-gray-700 font-medium mb-1">
-          Proof of Business Address (Upload Image)
-        </label>
-        <input type="file" id="businessAddressProof" name="businessAddressProof" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="affidavitCopy" className="block text-gray-700 font-medium mb-1">
-          Affidavit (Upload Image)
-        </label>
-        <input type="file" id="affidavitCopy" name="affidavitCopy" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="articlesMemorandumCopy" className="block text-gray-700 font-medium mb-1">
-          Memorandum of Articles/Association (Upload Image)
-        </label>
-        <input type="file" id="articlesMemorandumCopy" name="articlesMemorandumCopy" className="border rounded px-3 py-2 w-full" />
-              </div>
-              </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="file"
+            id="nationalTaxProof"
+            name="image2"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+
         <div className="mb-4">
-          <label htmlFor="director1" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="letterHeadSample"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Letter Head Sample (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="letterHeadSample"
+            name="image3"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="rubberStampSample"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Rubber Stamp Sample (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="rubberStampSample"
+            name="image4"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="partnershipDeedCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Copy of the Partnership Deed (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="partnershipDeedCopy"
+            name="image5"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="secpRegistrationCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            SECP Registration/Certificate of Registration Copy (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="secpRegistrationCopy"
+            name="image6"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="businessAddressProof"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Proof of Business Address (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="businessAddressProof"
+            name="image7"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="affidavitCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Affidavit (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="affidavitCopy"
+            name="image8"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="articlesMemorandumCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Memorandum of Articles/Association (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="articlesMemorandumCopy"
+            name="image9"
+            className="w-full px-3 py-2 border rounded"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="mb-4">
+          <label
+            htmlFor="director1"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Director 1
           </label>
-          <input type="text" id="director1" name="director1" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="text"
+            id="director1"
+            name="director1"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleInputChange}
+          />
         </div>
         <div className="mb-4">
-          <label htmlFor="director2" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="director2"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Director 2
           </label>
-          <input type="text" id="director2" name="director2" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="text"
+            id="director2"
+            name="director2"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleInputChange}
+          />
         </div>
         <div className="mb-4">
-          <label htmlFor="director3" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="director3"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Director 3
           </label>
-          <input type="text" id="director3" name="director3" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="text"
+            id="director3"
+            name="director3"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleInputChange}
+          />
         </div>
-              </div>
+      </div>
 
-     
       {Object.keys(formErrors).map((fieldName, index) => {
         return (
           <div key={index} className="text-red-500">
@@ -185,12 +298,11 @@ const BankForm = () => {
       <div className="flex justify-center">
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded focus:outline-none"
+          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none "
         >
           Submit
         </button>
-              </div>
-              
+      </div>
     </form>
   );
 };

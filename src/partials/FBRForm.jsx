@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
 const FBRForm = () => {
-    const [formErrors, setFormErrors] = useState({});
-
+  const [formErrors, setFormErrors] = useState({});
+  const [formData, setFormData] = useState({
+    contactNumber: "",
+    emailAddress: "",
+    natureOfBusiness: "",
+    images: [],
+  });
   const validateForm = () => {
     const errors = {};
     let isValid = true;
@@ -34,106 +40,172 @@ const FBRForm = () => {
     return isValid;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    setFormData({ ...formData, images: [...formData.images, ...files] });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const isFormValid = validateForm();
     if (!isFormValid) {
       return;
     }
+    const data = new FormData();
 
-    const formData = new FormData(event.target);
+    data.append("contactNumber", formData.contactNumber);
+    data.append("emailAddress", formData.emailAddress);
+    data.append("natureOfBusiness", formData.natureOfBusiness);
 
-    const base64Promises = [];
-    for (const file of formData.values()) {
-      if (file instanceof File) {
-        const reader = new FileReader();
-        base64Promises.push(
-          new Promise((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-          })
-        );
-        reader.readAsDataURL(file);
-      }
+    formData.images.forEach((image, index) => {
+      data.append(`image${index + 1}`, image);
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/pideReg/fbr/",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-
-    const base64Results = await Promise.all(base64Promises);
-
-    const fileInputs = Array.from(formData.entries()).reduce((acc, [key, value], index) => {
-      if (value instanceof File) {
-        acc[key] = {
-          name: value.name,
-          type: value.type,
-          data: base64Results[index],
-        };
-      } else {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    const jsonData = JSON.stringify(fileInputs, null, 2);
-
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'SECP_Form.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
+
   return (
-    <form className="max-w-4xl mx-auto mt-20 p-8 border rounded shadow-md bg-white">
-      <h2 className="text-lg font-semibold mb-6 text-center">FBR Registration Form</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="mb-6 text-lg font-semibold text-center">
+        FBR Registration Form
+      </h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="mb-4">
-          <label htmlFor="cnicCopy" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="cnicCopy"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Copy of Valid CNIC (Upload Image)
           </label>
-          <input type="file" id="cnicCopy" name="cnicCopy" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="file"
+            id="cnicCopy"
+            name="image1"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
         </div>
         <div className="mb-4">
-          <label htmlFor="electricityBill" className="block text-gray-700 font-medium mb-1">
-            Copy of Recently Paid Electricity Bill of Business Location (Upload Image)
+          <label
+            htmlFor="electricityBill"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Copy of Recently Paid Electricity Bill of Business Location (Upload
+            Image)
           </label>
-          <input type="file" id="electricityBill" name="electricityBill" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="file"
+            id="electricityBill"
+            name="image2"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
         </div>
       </div>
       <div className="mb-4">
-        <label htmlFor="businessLetterHead" className="block text-gray-700 font-medium mb-1">
+        <label
+          htmlFor="businessLetterHead"
+          className="block mb-1 font-medium text-gray-700"
+        >
           Blank Business Letter Head (Upload Image)
         </label>
-        <input type="file" id="businessLetterHead" name="businessLetterHead" className="border rounded px-3 py-2 w-full" />
+        <input
+          type="file"
+          id="businessLetterHead"
+          name="image3"
+          accept="image/*"
+          className="w-full px-3 py-2 border rounded"
+          onChange={handleImageChange}
+        />
       </div>
       <div className="mb-4">
-        <label htmlFor="propertyPapers" className="block text-gray-700 font-medium mb-1">
-          Property Papers or Rental Agreement (Rental Agreement printed on Rs. 200/- stamp paper) (Upload Image)
+        <label
+          htmlFor="propertyPapers"
+          className="block mb-1 font-medium text-gray-700"
+        >
+          Property Papers or Rental Agreement (Rental Agreement printed on Rs.
+          200/- stamp paper) (Upload Image)
         </label>
-        <input type="file" id="propertyPapers" name="propertyPapers" className="border rounded px-3 py-2 w-full" />
+        <input
+          type="file"
+          id="propertyPapers"
+          name="image4"
+          accept="image/*"
+          className="w-full px-3 py-2 border rounded"
+          onChange={handleImageChange}
+        />
       </div>
       <div className="mb-4">
-        <label htmlFor="contactNumbers" className="block text-gray-700 font-medium mb-1">
+        <label
+          htmlFor="contactNumbers"
+          className="block mb-1 font-medium text-gray-700"
+        >
           Contact Numbers (Landline)
         </label>
-        <input type="text" id="contactNumbers" name="contactNumbers" className="border rounded px-3 py-2 w-full" />
+        <input
+          type="text"
+          id="contactNumbers"
+          name="contactNumber"
+          className="w-full px-3 py-2 border rounded"
+          onChange={handleInputChange}
+        />
       </div>
       <div className="mb-4">
-        <label htmlFor="emailAddress" className="block text-gray-700 font-medium mb-1">
+        <label
+          htmlFor="emailAddress"
+          className="block mb-1 font-medium text-gray-700"
+        >
           Valid Email Address
         </label>
-        <input type="text" id="emailAddress" name="emailAddress" className="border rounded px-3 py-2 w-full" />
+        <input
+          type="text"
+          id="emailAddress"
+          name="emailAddress"
+          className="w-full px-3 py-2 border rounded"
+          onChange={handleInputChange}
+        />
       </div>
       <div className="mb-4">
-        <label htmlFor="natureOfBusiness" className="block text-gray-700 font-medium mb-1">
+        <label
+          htmlFor="natureOfBusiness"
+          className="block mb-1 font-medium text-gray-700"
+        >
           Nature of Business
         </label>
-        <input type="text" id="natureOfBusiness" name="natureOfBusiness" className="border rounded px-3 py-2 w-full" />
-          </div>
-          
+        <input
+          type="text"
+          id="natureOfBusiness"
+          name="natureOfBusiness"
+          className="w-full px-3 py-2 border rounded"
+          onChange={handleInputChange}
+        />
+      </div>
+
       {Object.keys(formErrors).length > 0 && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
           {Object.values(formErrors).map((error, index) => (
             <p key={index}>{error}</p>
           ))}
@@ -142,7 +214,7 @@ const FBRForm = () => {
       <div className="flex justify-center">
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded focus:outline-none"
+          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
         >
           Submit
         </button>
