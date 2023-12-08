@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-
+import axios from "axios";
 const PSEBForm = () => {
   const [formErrors, setFormErrors] = useState({});
-
+  const [formData, setFormData] = useState({
+    images: [],
+  });
   const validateForm = () => {
     const errors = {};
     let isValid = true;
@@ -29,109 +31,163 @@ const PSEBForm = () => {
     return isValid;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    setFormData({ ...formData, images: [...formData.images, ...files] });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const isFormValid = validateForm();
     if (!isFormValid) {
       return;
     }
+    const data = new FormData();
 
-    const formData = new FormData(event.target);
+    formData.images.forEach((image, index) => {
+      data.append(`image${index + 1}`, image);
+    });
 
-    const base64Promises = [];
-    for (const file of formData.values()) {
-      if (file instanceof File) {
-        const reader = new FileReader();
-        base64Promises.push(
-          new Promise((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-          })
-        );
-        reader.readAsDataURL(file);
-      }
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/pideReg/pseb/",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-
-    const base64Results = await Promise.all(base64Promises);
-
-    const fileInputs = Array.from(formData.entries()).reduce((acc, [key, value], index) => {
-      if (value instanceof File) {
-        acc[key] = {
-          name: value.name,
-          type: value.type,
-          data: base64Results[index],
-        };
-      } else {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    const jsonData = JSON.stringify(fileInputs, null, 2);
-
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "SECP_Form.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
-    <form className="max-w-4xl mx-auto mt-20 p-8 border rounded shadow-md bg-white" onSubmit={handleSubmit}>
-      <h2 className="text-lg font-semibold mb-6 text-center">PSEB Registration Form</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="mb-6 text-lg font-semibold text-center">
+        PSEB Registration Form
+      </h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="mb-4">
-          <label htmlFor="cnicDirectors" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="cnicDirectors"
+            className="block mb-1 font-medium text-gray-700"
+          >
             CNIC of Director (Upload Image)
           </label>
-          <input type="file" id="cnicDirectors" name="cnicDirectors" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="file"
+            id="cnicDirectors"
+            name="image1"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
         </div>
         {/* Add other file input fields similarly */}
         <div className="mb-4">
-          <label htmlFor="mouSECP" className="block text-gray-700 font-medium mb-1">
+          <label
+            htmlFor="mouSECP"
+            className="block mb-1 font-medium text-gray-700"
+          >
             Attested Copy of M0U (SECP) (Upload Image)
           </label>
-          <input type="file" id="mouSECP" name="mouSECP" className="border rounded px-3 py-2 w-full" />
+          <input
+            type="file"
+            id="mouSECP"
+            name="image2"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
         </div>
-         <div className="mb-4">
-        <label htmlFor="incorporationCertificate" className="block text-gray-700 font-medium mb-1">
-          Incorporation Certificate (SECP) (Upload Image)
-        </label>
-        <input type="file" id="incorporationCertificate" name="incorporationCertificate" className="border rounded px-3 py-2 w-full" />
+        <div className="mb-4">
+          <label
+            htmlFor="incorporationCertificate"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Incorporation Certificate (SECP) (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="incorporationCertificate"
+            name="image3"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="partnershipDeed"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Partnership Deed (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="partnershipDeed"
+            name="image4"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="firmRegistrationCertificate"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Firm Registration Certificate (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="firmRegistrationCertificate"
+            name="image5"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="feeChallanPSEB"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Fee Challan (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="feeChallanPSEB"
+            name="image6"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="businessBankStatement"
+            className="block mb-1 font-medium text-gray-700"
+          >
+            Business Bank Statement (Upload Image)
+          </label>
+          <input
+            type="file"
+            id="businessBankStatement"
+            name="image7"
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+            onChange={handleImageChange}
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="partnershipDeed" className="block text-gray-700 font-medium mb-1">
-          Partnership Deed (Upload Image)
-        </label>
-        <input type="file" id="partnershipDeed" name="partnershipDeed" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="firmRegistrationCertificate" className="block text-gray-700 font-medium mb-1">
-          Firm Registration Certificate (Upload Image)
-        </label>
-        <input type="file" id="firmRegistrationCertificate" name="firmRegistrationCertificate" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="feeChallanPSEB" className="block text-gray-700 font-medium mb-1">
-          Fee Challan (Upload Image)
-        </label>
-        <input type="file" id="feeChallanPSEB" name="feeChallanPSEB" className="border rounded px-3 py-2 w-full" />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="businessBankStatement" className="block text-gray-700 font-medium mb-1">
-          Business Bank Statement (Upload Image)
-        </label>
-        <input type="file" id="businessBankStatement" name="businessBankStatement" className="border rounded px-3 py-2 w-full" />
-              </div>
-              </div>
-     
-       
 
-      
       {Object.keys(formErrors).map((fieldName, index) => {
         return (
           <div key={index} className="text-red-500">
@@ -143,7 +199,7 @@ const PSEBForm = () => {
       <div className="flex justify-center">
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded focus:outline-none"
+          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
         >
           Submit
         </button>
