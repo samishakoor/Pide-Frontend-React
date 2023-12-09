@@ -37,6 +37,7 @@ function SECPData({ secpData }) {
           key={index}
           src={`http://localhost:3000/images/secp/${userId}/${image}`}
           alt={`Image ${index + 1}`}
+          crossOrigin="anonymous"
         />
       ))}
     </div>
