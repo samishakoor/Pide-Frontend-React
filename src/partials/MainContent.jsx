@@ -1,24 +1,24 @@
 import React, { useEffect } from "react";
-import SECPForm from "./SECPForm";
-import FBRForm from "./FBRForm";
-import BankForm from "./BankForm";
-import PSEBForm from "./PSEBForm";
-function MainContent({ content }) {
-  
 
+import BankFormHandler from "./BankFormHandler";
+import PSEBFormHandler from "./PSEBFormHandler";
+import SECPFormHandler from "./SECPFormHandler";
+import FBRFormHandler from "./FBRFormHandler";
+
+function MainContent({ content }) {
   switch (content) {
     case "Home":
       return <div>Main content for Home</div>;
     case "Profile":
       return <div>Main content for Profile</div>;
     case "SECP Registration":
-      return SECPForm(); // Display SECP Registration form
+      return <SECPFormHandler />;
     case "FBR Registration":
-      return FBRForm();
+      return <FBRFormHandler />;
     case "Bank Account Documents":
-      return BankForm();
+      return <BankFormHandler />;
     case "PSEB Registration":
-      return PSEBForm();
+      return <PSEBFormHandler />;
     case "Settings":
       return <div>Main content for Settings</div>;
     case "Sign Out":

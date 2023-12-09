@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
+import SECPFormHandler from "./SECPFormHandler";
 
 const SECPForm = () => {
+  const [showPSEBFormData, setShowPSEBFormData] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     officeAddress: "",
@@ -85,191 +87,217 @@ const SECPForm = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            Authorization: `Bearer ${JSON.parse(
+              window.localStorage.getItem("token")
+            )}`,
           },
         }
       );
 
-      console.log(response.data);
+      if (response.status === 201) {
+        setShowPSEBFormData(true);
+      } else {
+        alert("Something went wrong");
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      if (error.response && error.response.status === 401) {
+        alert("Session Expired! Please login again.");
+        window.localStorage.clear();
+        window.location.href = "./SignIn";
+      } else {
+        console.error("Error uploading SECP docs:", error);
+        alert("Something went wrong!");
+      }
     }
   };
 
   return (
-    <form
-      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="mb-6 text-2xl font-semibold">SECP Registration Form</h2>
-
-      <div className="mb-4">
-        <label htmlFor="cnic" className="block mb-2 font-medium text-gray-700">
-          CNIC (Upload Image)
-        </label>
-        <input
-          type="file"
-          id="cnic"
-          name="image1"
-          accept="image/*"
-          className="w-full px-4 py-2 border rounded"
-          onChange={handleImageChange}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label
-            htmlFor="memorandum"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Memorandum (Upload Image)
-          </label>
-          <input
-            type="file"
-            id="memorandum"
-            name="image2"
-            accept="image/*"
-            className="w-full px-4 py-2 border rounded"
-            onChange={handleImageChange}
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="complianceForm"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Compliance Form (Upload Image)
-          </label>
-          <input
-            type="file"
-            id="complianceForm"
-            name="image3"
-            accept="image/*"
-            className="w-full px-4 py-2 border rounded"
-            onChange={handleImageChange}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label
-            htmlFor="officeAddress"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Office Address
-          </label>
-          <input
-            type="text"
-            id="officeAddress"
-            name="officeAddress"
-            className="w-full px-4 py-2 border rounded"
-            placeholder="Enter Office Address"
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="telephoneNumber"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Telephone Number
-          </label>
-          <input
-            type="text"
-            id="telephoneNumber"
-            name="telephoneNumber"
-            className="w-full px-4 py-2 border rounded"
-            placeholder="Enter Telephone Number"
-            onChange={handleInputChange}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <label
-            htmlFor="director1"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Name of Director 1
-          </label>
-          <input
-            type="text"
-            id="director1"
-            name="director1"
-            className="w-full px-4 py-2 border rounded"
-            placeholder="Enter Director 1 Name"
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="director2"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Name of Director 2
-          </label>
-          <input
-            type="text"
-            id="director2"
-            name="director2"
-            className="w-full px-4 py-2 border rounded"
-            placeholder="Enter Director 2 Name"
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="director3"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Name of Director 3
-          </label>
-          <input
-            type="text"
-            id="director3"
-            name="director3"
-            className="w-full px-4 py-2 border rounded"
-            placeholder="Enter Director 3 Name"
-            onChange={handleInputChange}
-          />
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="feeChallan"
-          className="block mb-2 font-medium text-gray-700"
+    <div>
+      {showFBRFormData ? (
+        <FBRFormHandler />
+      ) : (
+        <form
+          className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+          onSubmit={handleSubmit}
         >
-          Fee Challan (Upload Image)
-        </label>
-        <input
-          type="file"
-          id="feeChallan"
-          name="image4"
-          accept="image/*"
-          className="w-full px-4 py-2 border rounded"
-          onChange={handleImageChange}
-        />
-      </div>
+          <h2 className="mb-6 text-2xl font-semibold">
+            SECP Registration Form
+          </h2>
 
-      {Object.keys(formErrors).length > 0 && (
-        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
-          {Object.values(formErrors).map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
+          <div className="mb-4">
+            <label
+              htmlFor="cnic"
+              className="block mb-2 font-medium text-gray-700"
+            >
+              CNIC (Upload Image)
+            </label>
+            <input
+              type="file"
+              id="cnic"
+              name="image1"
+              accept="image/*"
+              className="w-full px-4 py-2 border rounded"
+              onChange={handleImageChange}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label
+                htmlFor="memorandum"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Memorandum (Upload Image)
+              </label>
+              <input
+                type="file"
+                id="memorandum"
+                name="image2"
+                accept="image/*"
+                className="w-full px-4 py-2 border rounded"
+                onChange={handleImageChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="complianceForm"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Compliance Form (Upload Image)
+              </label>
+              <input
+                type="file"
+                id="complianceForm"
+                name="image3"
+                accept="image/*"
+                className="w-full px-4 py-2 border rounded"
+                onChange={handleImageChange}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label
+                htmlFor="officeAddress"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Office Address
+              </label>
+              <input
+                type="text"
+                id="officeAddress"
+                name="officeAddress"
+                className="w-full px-4 py-2 border rounded"
+                placeholder="Enter Office Address"
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="telephoneNumber"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Telephone Number
+              </label>
+              <input
+                type="text"
+                id="telephoneNumber"
+                name="telephoneNumber"
+                className="w-full px-4 py-2 border rounded"
+                placeholder="Enter Telephone Number"
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div>
+              <label
+                htmlFor="director1"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Name of Director 1
+              </label>
+              <input
+                type="text"
+                id="director1"
+                name="director1"
+                className="w-full px-4 py-2 border rounded"
+                placeholder="Enter Director 1 Name"
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="director2"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Name of Director 2
+              </label>
+              <input
+                type="text"
+                id="director2"
+                name="director2"
+                className="w-full px-4 py-2 border rounded"
+                placeholder="Enter Director 2 Name"
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="director3"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Name of Director 3
+              </label>
+              <input
+                type="text"
+                id="director3"
+                name="director3"
+                className="w-full px-4 py-2 border rounded"
+                placeholder="Enter Director 3 Name"
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="feeChallan"
+              className="block mb-2 font-medium text-gray-700"
+            >
+              Fee Challan (Upload Image)
+            </label>
+            <input
+              type="file"
+              id="feeChallan"
+              name="image4"
+              accept="image/*"
+              className="w-full px-4 py-2 border rounded"
+              onChange={handleImageChange}
+            />
+          </div>
+
+          {Object.keys(formErrors).length > 0 && (
+            <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
+              {Object.values(formErrors).map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       )}
-
-      <div className="flex justify-center">
-        <button
-          type="submit"
-          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
-        >
-          Submit
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 
