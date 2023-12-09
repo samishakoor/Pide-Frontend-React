@@ -3,7 +3,7 @@ import axios from "axios";
 import SECPFormHandler from "./SECPFormHandler";
 
 const SECPForm = () => {
-  const [showPSEBFormData, setShowPSEBFormData] = useState(false);
+  const [showSECPFormData, setShowSECPFormData] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     officeAddress: "",
@@ -96,7 +96,7 @@ const SECPForm = () => {
       );
 
       if (response.status === 201) {
-        setShowPSEBFormData(true);
+        setShowSECPFormData(true);
       } else {
         alert("Something went wrong");
       }
@@ -114,8 +114,8 @@ const SECPForm = () => {
 
   return (
     <div>
-      {showFBRFormData ? (
-        <FBRFormHandler />
+      {showSECPFormData ? (
+        <SECPFormHandler />
       ) : (
         <form
           className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"

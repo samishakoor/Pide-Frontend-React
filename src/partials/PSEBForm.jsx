@@ -85,8 +85,8 @@ const PSEBForm = () => {
 
   return (
     <div>
-      {showFBRFormData ? (
-        <FBRFormHandler />
+      {showPSEBFormData ? (
+        <PSEBFormHandler />
       ) : (
     <form
       className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"

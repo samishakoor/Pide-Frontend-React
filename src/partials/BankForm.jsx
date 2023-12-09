@@ -103,8 +103,8 @@ const BankForm = () => {
 
   return (
     <div>
-      {showFBRFormData ? (
-        <FBRFormHandler />
+      {showBankFormData ? (
+        <BankFormHandler />
       ) : (
     <form
       className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
