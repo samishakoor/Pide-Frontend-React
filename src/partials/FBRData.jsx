@@ -30,6 +30,7 @@ function FBRData({ fbrData }) {
           key={index}
           src={`http://localhost:3000/images/fbr/${userId}/${image}`}
           alt={`Image ${index + 1}`}
+          crossOrigin="anonymous"
         />
       ))}
     </div>
