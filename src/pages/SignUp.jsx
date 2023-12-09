@@ -29,8 +29,8 @@ function SignUp() {
           },
         }
       );
-      
-      if (response.status === 200 && response.data.status == "success") {
+
+      if (response.status === 201 && response.data.status == "success") {
         window.location.href = "./SignIn";
       } else {
         alert("Something went wrong");
