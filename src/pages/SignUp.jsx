@@ -1,10 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 import Header from "../partials/Header";
 import Banner from "../partials/Banner";
 
 function SignUp() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      console.log(name, email, password);
+      const userData = {
+        name: name,
+        email: email,
+        password: password,
+      };
+      const response = await axios.post(
+        "http://127.0.0.1:3000/api/v1/users/signup",
+        userData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        window.location.href = "./SignIn";
+      } else {
+        alert("Something went wrong during registering user");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        alert("User already exists!");
+      } else {
+        console.error("Error during registration:", error);
+        alert("Something went wrong");
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       {/*  Site header */}
@@ -24,7 +64,7 @@ function SignUp() {
 
               {/* Form */}
               <div className="max-w-sm mx-auto">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="flex flex-wrap mb-4 -mx-3">
                     <div className="w-full px-3">
                       <label
@@ -38,6 +78,7 @@ function SignUp() {
                         type="text"
                         className="w-full text-gray-800 form-input"
                         placeholder="Enter your name"
+                        onChange={(e) => setName(e.target.value)}
                         required
                       />
                     </div>
@@ -55,6 +96,7 @@ function SignUp() {
                         type="email"
                         className="w-full text-gray-800 form-input"
                         placeholder="Enter your email address"
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -72,6 +114,7 @@ function SignUp() {
                         type="password"
                         className="w-full text-gray-800 form-input"
                         placeholder="Enter your password"
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                       />
                     </div>
