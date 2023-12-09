@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
+import BankFormHandler from "./BankFormHandler";
 
 const BankForm = () => {
+  const [showBankFormData, setShowBankFormData] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     director1: "",
@@ -74,17 +76,36 @@ const BankForm = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            Authorization: `Bearer ${JSON.parse(
+              window.localStorage.getItem("token")
+            )}`,
           },
         }
       );
 
-      console.log(response.data);
+      if (response.status === 201) {
+        setShowBankFormData(true);
+      } else {
+        alert("Something went wrong");
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      if (error.response && error.response.status === 401) {
+        alert("Session Expired! Please login again.");
+        window.localStorage.clear();
+        window.location.href = "./SignIn";
+      } else {
+        console.error("Error uploading bank docs:", error);
+        alert("Something went wrong!");
+      }
     }
   };
 
   return (
+    <div>
+      {showBankFormData ? (
+        <BankFormHandler />
+      ) : (
     <form
       className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
       onSubmit={handleSubmit}
@@ -304,6 +325,8 @@ const BankForm = () => {
         </button>
       </div>
     </form>
+    )}
+    </div>
   );
 };
 

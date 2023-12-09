@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Signedin_Header from "../partials/signedin_header";
 import Sidebar from "../partials/Sidebar";
-import axios from "axios";
 import Footer from "../partials/Footer";
 import MainContent from "../partials/MainContent";
 
@@ -10,7 +10,7 @@ function Signedin_Home() {
   const [userData, setUserData] = useState("");
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchUserData = async () => {
       try {
         const response = await axios.get(
           "http://127.0.0.1:3000/api/v1/users/userData",
@@ -41,9 +41,9 @@ function Signedin_Home() {
           alert("Something went wrong");
         }
       }
-    }
-    fetchData();
-  });
+    };
+    fetchUserData();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">

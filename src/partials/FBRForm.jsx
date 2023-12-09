@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
+import FBRFormHandler from "./FBRFormHandler";
 
 const FBRForm = () => {
+  const [showFBRFormData, setShowFBRFormData] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     contactNumber: "",
@@ -72,154 +74,175 @@ const FBRForm = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            Authorization: `Bearer ${JSON.parse(
+              window.localStorage.getItem("token")
+            )}`,
           },
         }
       );
 
-      console.log(response.data);
+      if (response.status === 201) {
+        setShowFBRFormData(true);
+      } else {
+        alert("Something went wrong");
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      if (error.response && error.response.status === 401) {
+        alert("Session Expired! Please login again.");
+        window.localStorage.clear();
+        window.location.href = "./SignIn";
+      } else {
+        console.error("Error uploading FBR docs:", error);
+        alert("Something went wrong!");
+      }
     }
   };
 
   return (
-    <form
-      className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="mb-6 text-lg font-semibold text-center">
-        FBR Registration Form
-      </h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="mb-4">
-          <label
-            htmlFor="cnicCopy"
-            className="block mb-1 font-medium text-gray-700"
-          >
-            Copy of Valid CNIC (Upload Image)
-          </label>
-          <input
-            type="file"
-            id="cnicCopy"
-            name="image1"
-            accept="image/*"
-            className="w-full px-3 py-2 border rounded"
-            onChange={handleImageChange}
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="electricityBill"
-            className="block mb-1 font-medium text-gray-700"
-          >
-            Copy of Recently Paid Electricity Bill of Business Location (Upload
-            Image)
-          </label>
-          <input
-            type="file"
-            id="electricityBill"
-            name="image2"
-            accept="image/*"
-            className="w-full px-3 py-2 border rounded"
-            onChange={handleImageChange}
-          />
-        </div>
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="businessLetterHead"
-          className="block mb-1 font-medium text-gray-700"
+    <div>
+      {showFBRFormData ? (
+        <FBRFormHandler />
+      ) : (
+        <form
+          className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
+          onSubmit={handleSubmit}
         >
-          Blank Business Letter Head (Upload Image)
-        </label>
-        <input
-          type="file"
-          id="businessLetterHead"
-          name="image3"
-          accept="image/*"
-          className="w-full px-3 py-2 border rounded"
-          onChange={handleImageChange}
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="propertyPapers"
-          className="block mb-1 font-medium text-gray-700"
-        >
-          Property Papers or Rental Agreement (Rental Agreement printed on Rs.
-          200/- stamp paper) (Upload Image)
-        </label>
-        <input
-          type="file"
-          id="propertyPapers"
-          name="image4"
-          accept="image/*"
-          className="w-full px-3 py-2 border rounded"
-          onChange={handleImageChange}
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="contactNumbers"
-          className="block mb-1 font-medium text-gray-700"
-        >
-          Contact Numbers (Landline)
-        </label>
-        <input
-          type="text"
-          id="contactNumbers"
-          name="contactNumber"
-          className="w-full px-3 py-2 border rounded"
-          onChange={handleInputChange}
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="emailAddress"
-          className="block mb-1 font-medium text-gray-700"
-        >
-          Valid Email Address
-        </label>
-        <input
-          type="text"
-          id="emailAddress"
-          name="emailAddress"
-          className="w-full px-3 py-2 border rounded"
-          onChange={handleInputChange}
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="natureOfBusiness"
-          className="block mb-1 font-medium text-gray-700"
-        >
-          Nature of Business
-        </label>
-        <input
-          type="text"
-          id="natureOfBusiness"
-          name="natureOfBusiness"
-          className="w-full px-3 py-2 border rounded"
-          onChange={handleInputChange}
-        />
-      </div>
+          <h2 className="mb-6 text-lg font-semibold text-center">
+            FBR Registration Form
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="mb-4">
+              <label
+                htmlFor="cnicCopy"
+                className="block mb-1 font-medium text-gray-700"
+              >
+                Copy of Valid CNIC (Upload Image)
+              </label>
+              <input
+                type="file"
+                id="cnicCopy"
+                name="image1"
+                accept="image/*"
+                className="w-full px-3 py-2 border rounded"
+                onChange={handleImageChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="electricityBill"
+                className="block mb-1 font-medium text-gray-700"
+              >
+                Copy of Recently Paid Electricity Bill of Business Location
+                (Upload Image)
+              </label>
+              <input
+                type="file"
+                id="electricityBill"
+                name="image2"
+                accept="image/*"
+                className="w-full px-3 py-2 border rounded"
+                onChange={handleImageChange}
+              />
+            </div>
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="businessLetterHead"
+              className="block mb-1 font-medium text-gray-700"
+            >
+              Blank Business Letter Head (Upload Image)
+            </label>
+            <input
+              type="file"
+              id="businessLetterHead"
+              name="image3"
+              accept="image/*"
+              className="w-full px-3 py-2 border rounded"
+              onChange={handleImageChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="propertyPapers"
+              className="block mb-1 font-medium text-gray-700"
+            >
+              Property Papers or Rental Agreement (Rental Agreement printed on
+              Rs. 200/- stamp paper) (Upload Image)
+            </label>
+            <input
+              type="file"
+              id="propertyPapers"
+              name="image4"
+              accept="image/*"
+              className="w-full px-3 py-2 border rounded"
+              onChange={handleImageChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="contactNumbers"
+              className="block mb-1 font-medium text-gray-700"
+            >
+              Contact Numbers (Landline)
+            </label>
+            <input
+              type="text"
+              id="contactNumbers"
+              name="contactNumber"
+              className="w-full px-3 py-2 border rounded"
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="emailAddress"
+              className="block mb-1 font-medium text-gray-700"
+            >
+              Valid Email Address
+            </label>
+            <input
+              type="text"
+              id="emailAddress"
+              name="emailAddress"
+              className="w-full px-3 py-2 border rounded"
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="natureOfBusiness"
+              className="block mb-1 font-medium text-gray-700"
+            >
+              Nature of Business
+            </label>
+            <input
+              type="text"
+              id="natureOfBusiness"
+              name="natureOfBusiness"
+              className="w-full px-3 py-2 border rounded"
+              onChange={handleInputChange}
+            />
+          </div>
 
-      {Object.keys(formErrors).length > 0 && (
-        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
-          {Object.values(formErrors).map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
+          {Object.keys(formErrors).length > 0 && (
+            <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
+              {Object.values(formErrors).map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       )}
-      <div className="flex justify-center">
-        <button
-          type="submit"
-          className="px-6 py-3 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
-        >
-          Submit
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 export default FBRForm;

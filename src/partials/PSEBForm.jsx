@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+
+import PSEBFormHandler from "./PSEBFormHandler";
+
 const PSEBForm = () => {
+  const [showPSEBFormData, setShowPSEBFormData] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     images: [],
@@ -54,17 +58,36 @@ const PSEBForm = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            Authorization: `Bearer ${JSON.parse(
+              window.localStorage.getItem("token")
+            )}`,
           },
         }
       );
 
-      console.log(response.data);
+      if (response.status === 201) {
+        setShowPSEBFormData(true);
+      } else {
+        alert("Something went wrong");
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      if (error.response && error.response.status === 401) {
+        alert("Session Expired! Please login again.");
+        window.localStorage.clear();
+        window.location.href = "./SignIn";
+      } else {
+        console.error("Error uploading PSEB docs:", error);
+        alert("Something went wrong!");
+      }
     }
   };
 
   return (
+    <div>
+      {showPSEBFormData ? (
+        <PSEBFormHandler />
+      ) : (
     <form
       className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md"
       onSubmit={handleSubmit}
@@ -205,6 +228,8 @@ const PSEBForm = () => {
         </button>
       </div>
     </form>
+    )}
+    </div>
   );
 };
 

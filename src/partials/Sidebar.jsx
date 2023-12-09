@@ -29,7 +29,7 @@ function Sidebar({ setMainContent }) {
     <aside className={`w-64 h-screen ${sidebarColor}`}>
       {/* Sidebar content */}
       <ul className="mt-10">
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
                   onClick={() => handleOptionClick('Home')}
 >
 
@@ -37,33 +37,35 @@ function Sidebar({ setMainContent }) {
                       Home
         </li>
       
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
-                  onClick={() => handleOptionClick('SECP Registration')}
->
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
+                  onClick={() => handleOptionClick('SECP Registration')}>
+          
           <FaCloudUploadAlt className="w-6 h-6 mr-2" />
           SECP Registration
               </li>
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
-                  onClick={() => handleOptionClick('FBR Registration')}
->
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
+                  onClick={() => handleOptionClick('FBR Registration')}>
+
+
+
           <FaCloudUploadAlt className="w-6 h-6 mr-2" />
           FBR Registration
               </li>
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
                   onClick={() => handleOptionClick('Bank Account Documents')}
 >
           <FaCloudUploadAlt className="w-6 h-6 mr-2" />
           Bank Account Documents 
 
               </li>
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
                   onClick={() => handleOptionClick('PSEB Registration')}
 >
           <FaCloudUploadAlt className="w-6 h-6 mr-2" />
           PSEB Registration
 
         </li>
-        <li className="flex items-center py-4 px-6 text-white hover:bg-blue-600"
+        <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
                   onClick={() => handleOptionClick('Settings')}
 >
           <FaSignOutAlt className="w-6 h-6 mr-2" />
@@ -71,7 +73,7 @@ function Sidebar({ setMainContent }) {
         </li>
           </ul>
           {displayedContent && (
-        <div className="absolute top-0 right-0 bottom-0 left-64 p-8 bg-white">
+        <div className="absolute top-0 bottom-0 right-0 p-8 bg-white left-64">
           {/* Display user details */}
           <h2>User Details</h2>
           <p>Name: {displayedContent.name}</p>
