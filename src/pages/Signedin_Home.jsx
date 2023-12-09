@@ -26,24 +26,24 @@ function Signedin_Home() {
           }
         );
 
-        if (response.statusCode === 401) {
-          alert("Token expired, Please Login Again !");
+        if (response.status === 200) {
+          setUserData(response.data.data.user);
+        } else {
+          alert("Something went wrong");
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          alert("Session Expired! Please login again.");
           window.localStorage.clear();
           window.location.href = "./SignIn";
         } else {
-          if (response.status === 200) {
-            setUserData(response.data.data.user);
-          } else {
-            alert("Something went wrong");
-          }
+          console.error("Error fetching user data:", error);
+          alert("Something went wrong");
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        alert("Something went wrong");
       }
     }
     fetchData();
-  }, []);
+  });
 
   return (
     <div className="flex flex-col min-h-screen">

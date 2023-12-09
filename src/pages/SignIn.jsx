@@ -28,23 +28,25 @@ function SignIn() {
         }
       );
 
-      if (response.status === 200 ) {
+      if (response.status === 200) {
         window.localStorage.setItem(
           "token",
           JSON.stringify(response.data.data.token)
         );
-        console.log(response.data.data);
         if (keepLoggedIn) {
           window.localStorage.setItem("loggedIn", true);
         }
-
         window.location.href = "./Signedin_home";
       } else {
-        alert("Something went wrong");
+        alert("Something went wrong during signin!");
       }
     } catch (error) {
-      console.error("Error during login:", error);
-      alert("Something went wrong");
+      if (error.response && error.response.status === 404) {
+        alert("Invalid email or password!");
+      } else {
+        console.error("Error during signin:", error);
+        alert("Something went wrong");
+      }
     }
   };
   return (

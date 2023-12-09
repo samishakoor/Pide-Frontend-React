@@ -33,11 +33,15 @@ function SignUp() {
       if (response.status === 201) {
         window.location.href = "./SignIn";
       } else {
-        alert("Something went wrong");
+        alert("Something went wrong during registering user");
       }
     } catch (error) {
-      console.error("Error during registration:", error);
-      alert("Something went wrong");
+      if (error.response && error.response.status === 404) {
+        alert("User already exists!");
+      } else {
+        console.error("Error during registration:", error);
+        alert("Something went wrong");
+      }
     }
   };
 
