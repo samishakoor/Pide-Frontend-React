@@ -1,10 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 import Header from "../partials/Header";
 import Banner from "../partials/Banner";
 
 function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      console.log(email, password);
+      const userData = {
+        email: email,
+        password: password,
+      };
+      const response = await axios.post(
+        "http://127.0.0.1:3000/api/v1/users/login",
+        userData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+
+      if (response.status === 200 && response.data.status == "success") {
+        window.localStorage.setItem("token", response.data.data);
+
+        if (keepLoggedIn) {
+          window.localStorage.setItem("loggedIn", true);
+        }
+
+        window.location.href = "./Signedin_home";
+      } else {
+        alert("Something went wrong");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("Something went wrong");
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       {/* Site header */}
@@ -22,12 +61,7 @@ function SignIn() {
 
               {/* Form */}
               <div className="max-w-sm mx-auto">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    window.location.href = "/Signedin_home";
-                  }}
-                >
+                <form onSubmit={handleSubmit}>
                   <div className="flex flex-wrap mb-4 -mx-3">
                     <div className="w-full px-3">
                       <label
@@ -41,6 +75,7 @@ function SignIn() {
                         type="email"
                         className="w-full text-gray-800 form-input"
                         placeholder="Enter your email address"
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -58,6 +93,7 @@ function SignIn() {
                         type="password"
                         className="w-full text-gray-800 form-input"
                         placeholder="Enter your password"
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                       />
                     </div>
@@ -66,7 +102,12 @@ function SignIn() {
                     <div className="w-full px-3">
                       <div className="flex justify-between">
                         <label className="flex items-center">
-                          <input type="checkbox" className="form-checkbox" />
+                          <input
+                            type="checkbox"
+                            className="form-checkbox"
+                            checked={keepLoggedIn}
+                            onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                          />
                           <span className="ml-2 text-gray-600">
                             Keep me signed in
                           </span>
