@@ -28,9 +28,12 @@ function SignIn() {
         }
       );
 
-      if (response.status === 200 && response.data.status == "success") {
-        window.localStorage.setItem("token", response.data.data);
-
+      if (response.status === 200 ) {
+        window.localStorage.setItem(
+          "token",
+          JSON.stringify(response.data.data.token)
+        );
+        console.log(response.data.data);
         if (keepLoggedIn) {
           window.localStorage.setItem("loggedIn", true);
         }
@@ -40,7 +43,7 @@ function SignIn() {
         alert("Something went wrong");
       }
     } catch (error) {
-      console.error("Error during registration:", error);
+      console.error("Error during login:", error);
       alert("Something went wrong");
     }
   };
