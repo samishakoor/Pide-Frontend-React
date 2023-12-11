@@ -9,6 +9,13 @@ function SECPData({ secpData }) {
   const [director3, setDirector3] = useState("");
   const [secpImages, setSecpImages] = useState([]);
 
+  const arrayOfImageName = [
+    "CNIC",
+    "Memorandum",
+    "Compliance Form",
+    "Fee Challan",
+  ];
+
   useEffect(() => {
     setSecpImages(
       Object.values(secpData)
@@ -25,21 +32,48 @@ function SECPData({ secpData }) {
   }, [secpData]);
 
   return (
-    <div>
-      {telephoneNumber && <p>Telephone Number: {telephoneNumber}</p>}
-      {officeAddress && <p>Office Address: {officeAddress}</p>}
-      {director1 && <p>Director 1: {director1}</p>}
-      {director2 && <p>Director 2: {director2}</p>}
-      {director3 && <p>Director 3: {director3}</p>}
+    <div className="max-w-4xl mt-20 mx-auto p-4">
+      {telephoneNumber && (
+        <p className="mb-2">
+          <span className="font-semibold">Telephone Number:</span>{" "}
+          {telephoneNumber}
+        </p>
+      )}
+      {officeAddress && (
+        <p className="mb-2">
+          <span className="font-semibold">Office Address:</span>{" "}
+          {officeAddress}
+        </p>
+      )}
+      {director1 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 1:</span> {director1}
+        </p>
+      )}
+      {director2 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 2:</span> {director2}
+        </p>
+      )}
+      {director3 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 3:</span> {director3}
+        </p>
+      )}
 
-      {secpImages.map((image, index) => (
-        <img
-          key={index}
-          src={`http://localhost:3000/images/secp/${userId}/${image}`}
-          alt={`Image ${index + 1}`}
-          crossOrigin="anonymous"
-        />
-      ))}
+      <div className="flex flex-wrap">
+        {secpImages.map((image, index) => (
+          <div key={index} className="text-center mr-4 mb-4">
+            <h4 className="mb-2">{arrayOfImageName[index]}</h4>
+            <img
+              src={`http://localhost:3000/images/secp/${userId}/${image}`}
+              alt={`Image ${index + 1}`}
+              className="w-48 h-48 object-cover mx-auto"
+              crossOrigin="anonymous"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

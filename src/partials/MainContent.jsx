@@ -4,13 +4,13 @@ import BankFormHandler from "./BankFormHandler";
 import PSEBFormHandler from "./PSEBFormHandler";
 import SECPFormHandler from "./SECPFormHandler";
 import FBRFormHandler from "./FBRFormHandler";
+import Homepage from "./HomeContent";
+import ContactUs from "./ContactUs";
 
 function MainContent({ content }) {
   switch (content) {
     case "Home":
-      return <div>Main content for Home</div>;
-    case "Profile":
-      return <div>Main content for Profile</div>;
+      return <Homepage/>
     case "SECP Registration":
       return <SECPFormHandler />;
     case "FBR Registration":
@@ -20,9 +20,8 @@ function MainContent({ content }) {
     case "PSEB Registration":
       return <PSEBFormHandler />;
     case "Settings":
-      return <div>Main content for Settings</div>;
-    case "Sign Out":
-      return <div>Main content for Sign Out</div>;
+      return <ContactUs />;
+   
     default:
       return <div>No content selected</div>;
   }

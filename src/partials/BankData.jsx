@@ -7,6 +7,19 @@ function BankData({ bankData }) {
   const [director3, setDirector3] = useState("");
   const [bankImages, setBankImages] = useState([]);
 
+
+const arrayOfImageName = [
+    "CNIC Copy",
+    "Proof of National Tax Number",
+    "Letter Head Sample",
+    "Rubber Stamp Sample",
+    "Copy of the Partnership Deed",
+    "SECP Registration/Certificate of Registration Copy",
+    "Proof of Business Address",
+    "Affidavit",
+    "Memorandum of Articles/Association"
+];
+
   useEffect(() => {
     setBankImages(
       Object.values(bankData)
@@ -20,19 +33,36 @@ function BankData({ bankData }) {
   }, [bankData]);
 
   return (
-    <div>
-      {director1 && <p>Director 1: {director1}</p>}
-      {director2 && <p>Director 2: {director2}</p>}
-      {director3 && <p>Director 3: {director3}</p>}
+    <div className="max-w-4xl mx-auto p-4 flex mt-20 flex-col ">
+      {director1 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 1:</span> {director1}
+        </p>
+      )}
+      {director2 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 2:</span> {director2}
+        </p>
+      )}
+      {director3 && (
+        <p className="mb-2">
+          <span className="font-semibold">Director 3:</span> {director3}
+        </p>
+      )}
 
-      {bankImages.map((image, index) => (
-        <img
-          key={index}
-          src={`http://localhost:3000/images/bank/${userId}/${image}`}
-          alt={`Image ${index + 1}`}
-          crossOrigin="anonymous"
-        />
-      ))}
+      <div className="flex flex-wrap justify-center">
+        {bankImages.map((image, index) => (
+          <div key={index} className="mb-8 mr-4">
+            <h4 className="mb-2"> {arrayOfImageName[index]}</h4>
+            <img
+              src={`http://localhost:3000/images/bank/${userId}/${image}`}
+              alt={`Image ${index + 1}`}
+              className="w-64 h-64 object-cover"
+              crossOrigin="anonymous"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

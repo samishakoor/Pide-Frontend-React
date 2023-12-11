@@ -102,7 +102,7 @@ const BankForm = () => {
   };
 
   return (
-    <div>
+    <div  className="max-w-4xl p-8 mx-auto mt-20 bg-white border rounded shadow-md">
       {showBankFormData ? (
         <BankFormHandler />
       ) : (

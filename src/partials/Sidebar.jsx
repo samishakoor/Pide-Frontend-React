@@ -1,4 +1,4 @@
-import { FaHome, FaUser, FaCog, FaSignOutAlt, FaCloudUploadAlt  } from 'react-icons/fa'; // Import icons
+import { FaHome, FaUser, FaCog, FaSignOutAlt, FaCloudUploadAlt,FaPhoneAlt   } from 'react-icons/fa'; // Import icons
 import { Link } from 'react-router-dom';
 
 import React, { useState} from 'react';
@@ -68,8 +68,8 @@ function Sidebar({ setMainContent }) {
         <li className="flex items-center px-6 py-4 text-white hover:bg-blue-600"
                   onClick={() => handleOptionClick('Settings')}
 >
-          <FaSignOutAlt className="w-6 h-6 mr-2" />
-          Settings
+          <FaPhoneAlt FaSignOutAlt className="w-6 h-6 mr-2" />
+          Contact Us
         </li>
           </ul>
           {displayedContent && (
