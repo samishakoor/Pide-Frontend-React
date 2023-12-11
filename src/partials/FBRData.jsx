@@ -7,6 +7,13 @@ function FBRData({ fbrData }) {
   const [emailAddress, setEmailAddress] = useState("");
   const [fbrImages, setFbrImages] = useState([]);
 
+  const arrayOfImageName = [
+    "Copy of Valid CNIC",
+    "Copy of Recently Paid Electricity Bill of Business Location",
+    "Blank Business Letter Head",
+    "Property Papers or Rental Agreement"
+  ];
+
   useEffect(() => {
     setFbrImages(
       Object.values(fbrData)
@@ -20,19 +27,37 @@ function FBRData({ fbrData }) {
   }, [fbrData]);
 
   return (
-    <div>
-      {contactNumber && <p>Contact Number: {contactNumber}</p>}
-      {emailAddress && <p>Email Address: {emailAddress}</p>}
-      {natureOfBusiness && <p>Nature of Business: {natureOfBusiness}</p>}
+    <div className="max-w-4xl mx-auto mt-20 p-4">
+      {contactNumber && (
+        <p className="mb-2">
+          <span className="font-semibold">Contact Number:</span> {contactNumber}
+        </p>
+      )}
+      {emailAddress && (
+        <p className="mb-2">
+          <span className="font-semibold">Email Address:</span> {emailAddress}
+        </p>
+      )}
+      {natureOfBusiness && (
+        <p className="mb-2">
+          <span className="font-semibold">Nature of Business:</span>{" "}
+          {natureOfBusiness}
+        </p>
+      )}
 
-      {fbrImages.map((image, index) => (
-        <img
-          key={index}
-          src={`http://localhost:3000/images/fbr/${userId}/${image}`}
-          alt={`Image ${index + 1}`}
-          crossOrigin="anonymous"
-        />
-      ))}
+      <div className="flex flex-wrap">
+        {fbrImages.map((image, index) => (
+          <div key={index} className="m-2 text-center">
+            <h4 className="mb-2">{arrayOfImageName[index]}</h4>
+            <img
+              src={`http://localhost:3000/images/fbr/${userId}/${image}`}
+              alt={`Image ${index + 1}`}
+              className="w-64 h-64 object-cover"
+              crossOrigin="anonymous"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
